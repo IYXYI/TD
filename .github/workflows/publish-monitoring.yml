@@ -6,24 +6,22 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read        # for reading repository
+  pages: write          # required for deploying Pages
+  id-token: write       # required by deploy-pages@v4
+
 jobs:
   deploy-pages:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Upload artifact for GitHub Pages deployment
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./monitoring-exports
+
+      # Step 2: Deploy artifact to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-        with:
-          name: monitoring-exports
-          path: monitoring-exports
-
-      - name: Set up GitHub Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./monitoring-exports
-          publish_branch: gh-pages
-          force_orphan: true
