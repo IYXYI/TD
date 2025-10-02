@@ -88,4 +88,7 @@ jobs:
           name: monitoring-exports
           path: monitoring-exports
 
-
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./monitoring-exports
