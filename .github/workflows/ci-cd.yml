@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
+    steps:
       - name: Set image tags
         id: prep
         run: |
