@@ -59,4 +59,33 @@ jobs:
           kubectl apply -f k8s/
         shell: bash
 
+      - name: Wait for monitoring pods to be ready
+        run: |
+          kubectl wait --for=condition=ready pod -l app=grafana --timeout=120s || true
+          kubectl wait --for=condition=ready pod -l app=prometheus --timeout=120s || true
+          kubectl wait --for=condition=ready pod -l app=alertmanager --timeout=120s || true
+
+      - name: Export monitoring pod status and logs
+        run: |
+          mkdir -p monitoring-exports
+          kubectl get pods -A -o wide > monitoring-exports/pods.txt
+          kubectl get svc -A > monitoring-exports/services.txt
+          kubectl logs deployment/grafana > monitoring-exports/grafana.log || true
+          kubectl logs deployment/prometheus > monitoring-exports/prometheus.log || true
+          kubectl logs deployment/alertmanager > monitoring-exports/alertmanager.log || true
+
+      - name: Export Grafana dashboards (JSON)
+        run: |
+          # Try to get dashboards from the default provisioning path (if present in the container)
+          GRAFANA_POD=$(kubectl get pods -l app=grafana -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec $GRAFANA_POD -- sh -c 'cp -r /var/lib/grafana/dashboards /tmp/dashboards || true'
+          kubectl cp $GRAFANA_POD:/tmp/dashboards ./monitoring-exports/dashboards || true
+        continue-on-error: true
+
+      - name: Upload monitoring exports as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-exports
+          path: monitoring-exports
+
 
