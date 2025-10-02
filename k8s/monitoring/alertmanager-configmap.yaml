@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  labels:
+    app: alertmanager
+data:
+  config.yml: |
+    route:
+      receiver: 'email-alert'
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      group_by: ['alertname']
+    receivers:
+      - name: 'email-alert'
+        email_configs:
+          - to: 'your@email.com'
+            from: 'alertmanager@email.com'
+            smarthost: 'smtp.example.com:587'
+            auth_username: 'alertmanager@email.com'
+            auth_password: 'password'
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname']
