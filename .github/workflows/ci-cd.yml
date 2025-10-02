@@ -9,9 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      REPO_OWNER_LC: ${{ github.repository_owner.toLowerCase() }}
-      IMAGE_BACKEND: ghcr.io/${{ github.repository_owner.toLowerCase() }}/kube-todo-backend:latest
-      IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner.toLowerCase() }}/kube-todo-frontend:latest
+      - name: Set image tags
+        id: prep
+        run: |
+          echo "REPO_OWNER_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_BACKEND=ghcr.io/${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]' | sed 's|$|/kube-todo-backend:latest|' >> $GITHUB_ENV
+          echo "IMAGE_FRONTEND=ghcr.io/${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]' | sed 's|$|/kube-todo-frontend:latest|' >> $GITHUB_ENV
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
