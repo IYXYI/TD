@@ -5,9 +5,9 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read        # needed for repository access
+  pages: write          # needed to deploy to GitHub Pages
+  id-token: write       # needed by deploy-pages@v4
 
 jobs:
   build-and-deploy:
@@ -67,9 +67,9 @@ jobs:
 
       - name: Wait for monitoring pods to be ready
         run: |
-          kubectl wait --for=condition=ready pod -l app=grafana --timeout=120s || true
-          kubectl wait --for=condition=ready pod -l app=prometheus --timeout=120s || true
-          kubectl wait --for=condition=ready pod -l app=alertmanager --timeout=120s || true
+          kubectl wait --for=condition=ready pod -l app=grafana --timeout=300s || true
+          kubectl wait --for=condition=ready pod -l app=prometheus --timeout=300s || true
+          kubectl wait --for=condition=ready pod -l app=alertmanager --timeout=300s || true
 
       - name: Export monitoring pod status and logs
         run: |
@@ -82,17 +82,27 @@ jobs:
 
       - name: Export Grafana dashboards (JSON)
         run: |
-          GRAFANA_POD=$(kubectl get pods -l app=grafana -o jsonpath="{.items[0].metadata.name}")
-          kubectl exec $GRAFANA_POD -- sh -c 'cp -r /var/lib/grafana/dashboards /tmp/dashboards || true'
-          kubectl cp $GRAFANA_POD:/tmp/dashboards ./monitoring-exports/dashboards || true
+          GRAFANA_POD=$(kubectl get pods -l app=grafana -o jsonpath="{.items[0].metadata.name}" || echo "")
+          if [ -n "$GRAFANA_POD" ]; then
+            kubectl exec $GRAFANA_POD -- sh -c 'cp -r /var/lib/grafana/dashboards /tmp/dashboards || true'
+            kubectl cp $GRAFANA_POD:/tmp/dashboards ./monitoring-exports/dashboards || true
+          else
+            echo "No Grafana pod found, skipping dashboard export"
+          fi
         continue-on-error: true
 
-      # Step 1: Upload artifact for GitHub Pages deployment
+      - name: Upload monitoring exports as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-exports
+          path: monitoring-exports
+
+      # Step: Upload artifact for GitHub Pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./monitoring-exports
 
-      # Step 2: Deploy artifact to GitHub Pages
+      # Step: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
