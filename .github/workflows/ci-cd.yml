@@ -49,4 +49,16 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Set up KUBECONFIG
+        run: |
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+        shell: bash
+
+      - name: Deploy to Kubernetes
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl apply -f k8s/
+        shell: bash
+
 
