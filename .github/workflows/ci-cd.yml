@@ -97,6 +97,12 @@ jobs:
           name: monitoring-exports
           path: monitoring-exports
 
+  deploy-pages:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages   # ✅ required by deploy-pages@v4
+    steps:
       # Step: Upload artifact for GitHub Pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -106,6 +112,3 @@ jobs:
       # Step: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-
-
-        
