@@ -13,9 +13,10 @@ jobs:
       - name: Set image tags
         id: prep
         run: |
-          echo "REPO_OWNER_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "IMAGE_BACKEND=ghcr.io/${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]' | sed 's|$|/kube-todo-backend:latest|' >> $GITHUB_ENV
-          echo "IMAGE_FRONTEND=ghcr.io/${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]' | sed 's|$|/kube-todo-frontend:latest|' >> $GITHUB_ENV
+          REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_OWNER_LC=$REPO_OWNER_LC" >> $GITHUB_ENV
+          echo "IMAGE_BACKEND=ghcr.io/$REPO_OWNER_LC/kube-todo-backend:latest" >> $GITHUB_ENV
+          echo "IMAGE_FRONTEND=ghcr.io/$REPO_OWNER_LC/kube-todo-frontend:latest" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v4
 
