@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      REPO_OWNER_LC: ${{ github.repository_owner && toLower(github.repository_owner) || 'unknown' }}
-      IMAGE_BACKEND: ghcr.io/${{ github.repository_owner && toLower(github.repository_owner) || 'unknown' }}/kube-todo-backend:latest
-      IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner && toLower(github.repository_owner) || 'unknown' }}/kube-todo-frontend:latest
+  REPO_OWNER_LC: ${{ github.repository_owner.toLowerCase() }}
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner.toLowerCase() }}/kube-todo-backend:latest
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner.toLowerCase() }}/kube-todo-frontend:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
