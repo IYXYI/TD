@@ -91,6 +91,25 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Generate simple index.html for GitHub Pages
+        run: |
+          cat <<EOF > monitoring-exports/index.html
+          <html>
+          <head><title>Monitoring Exports</title></head>
+          <body>
+            <h1>Monitoring Exports</h1>
+            <ul>
+              <li><a href="pods.txt">Pods Status</a></li>
+              <li><a href="services.txt">Services</a></li>
+              <li><a href="grafana.log">Grafana Logs</a></li>
+              <li><a href="prometheus.log">Prometheus Logs</a></li>
+              <li><a href="alertmanager.log">Alertmanager Logs</a></li>
+              <li><a href="dashboards">Grafana Dashboards</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
       - name: Upload monitoring exports as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -107,8 +126,10 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./monitoring-exports
+          path: TD/k8s/monitoring
 
       # Step: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
+        
