@@ -94,7 +94,6 @@ jobs:
       - name: Generate simple index.html for GitHub Pages
         run: |
           cat <<EOF > monitoring-exports/index.html
-          <!DOCTYPE html>
           <html>
           <head><title>Monitoring Exports</title></head>
           <body>
@@ -105,7 +104,7 @@ jobs:
               <li><a href="grafana.log">Grafana Logs</a></li>
               <li><a href="prometheus.log">Prometheus Logs</a></li>
               <li><a href="alertmanager.log">Alertmanager Logs</a></li>
-              <li><a href="dashboards/">Grafana Dashboards</a></li>
+              <li><a href="dashboards">Grafana Dashboards</a></li>
             </ul>
           </body>
           </html>
@@ -121,14 +120,18 @@ jobs:
     needs: build-and-deploy
     runs-on: ubuntu-latest
     environment:
-      name: github-pages   # ✅ required by deploy-pages@v4
+      name: github-pages   # ✅ required
     steps:
-      # Step: Upload artifact for GitHub Pages
+      - name: Download monitoring artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: monitoring-exports
+          path: ./monitoring-exports
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: monitoring-exports   # ✅ FIXED (correct folder)
+          path: ./monitoring-exports
 
-      # Step: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
